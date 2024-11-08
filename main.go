@@ -112,15 +112,17 @@ func (p *ProxyServer) handleProxy(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *ProxyServer) clearCacheHandler(w http.ResponseWriter, r *http.Request) {
-	p.ClearCache()
+	p.cache.ClearCache()
 	log.Println("Cache cleared")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Cache cleared"))
 }
 
-func (p *ProxyServer) ClearCache() {
-	for k := range p.cache.store {
-		delete(p.cache.store, k)
+func (c *Cache) ClearCache() {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	for k := range c.store {
+		delete(c.store, k)
 	}
 }
 
